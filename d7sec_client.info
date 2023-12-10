@@ -1,0 +1,4 @@
+name = D7Sec client
+description = Replaces Drupal 7 unsupported module release information.
+core = 7.x
+package = D7Sec

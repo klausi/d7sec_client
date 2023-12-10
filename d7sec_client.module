@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * D7Sec module hooks.
+ */
+
+/**
+ * Implements hook_update_projects_alter().
+ */
+function d7sec_client_update_projects_alter(array &$projects) {
+  // Fetch the list of supported D7 projects from GitHub.
+  $d7sec_supported = drupal_http_request('https://raw.githubusercontent.com/klausi/d7sec_update/main/supported_projects.txt');
+  if ($d7sec_supported->code == 200) {
+    $supported_projects = explode("\n", $d7sec_supported->data);
+    foreach ($supported_projects as $supported_project) {
+      $supported_project = trim($supported_project);
+      if (isset($projects[$supported_project])) {
+        // Replace the project update XML URL with our own, pointing to Github.
+        $projects[$supported_project]['info']['project status url'] = 'https://raw.githubusercontent.com/klausi/d7sec_update/main';
+      }
+    }
+  }
+  else {
+    watchdog('d7sec_client', 'Could not fetch supported projects list from GitHub: <pre>@error</pre>', [
+      '@error' => print_r($d7sec_supported)
+    ], WATCHDOG_ERROR);
+  }
+}
